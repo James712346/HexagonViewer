@@ -202,6 +202,7 @@ export async function getPdfImage(
     // Determine scale based on device
     const isIOS = /Safari/.test(navigator.userAgent);
     const finalScale = scale || (isIOS ? 1.75 : 2);
+    console.log(finalScale)
     
     const cacheKey = generateCacheKey(pdfData, finalScale);
 

@@ -21,7 +21,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({ database,setArea, children
   };
 
   return (
-    <div style={{ overflow: 'hidden' }}>
+    <div style={{ overflow: 'hidden', width: '1670px', height: '2055.75px'}}>
       <TransformWrapper
         initialScale={0.81}
         onTransformed={handleScaleChange}
