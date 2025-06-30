@@ -21,7 +21,6 @@ export const Overlay: React.FC<OverlayComponentProps> = (
                 width: width,
                 height: height,
                 cursor: "pointer",
-                border: "1px black solid"
             }}
         >
         </div>
