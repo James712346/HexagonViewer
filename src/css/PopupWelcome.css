@@ -1,0 +1,112 @@
+.confetti {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.confetti div {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background-color: #EF5A00;
+  animation: fall 3s infinite;
+}
+
+.backgroundImg {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 200vw;
+  height: 200vh;
+  background-image: url('/logo/logo2.png'); /* Replace with your background image URL */
+  background-repeat: repeat; /* Repeats the background vertically */
+  background-position: center; /* Centers the background horizontally */
+  background-size: 200px auto;
+    transform: scale(3) rotate(-45deg); /* Rotate the entire background */
+
+}
+
+@keyframes fall {
+  0% { transform: translateY(-10px); opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+.popup {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+.button {
+  display: inline-block;
+  padding: 10px 20px;
+  margin: 10px 0;
+  color: #ffffff;
+  background-color: #EF5A00!important;
+  text-decoration: none;
+  border-radius: 5px;
+  border-style: none;
+}
+
+.button:hover {
+  background-color: #d94a00!important;
+}
+
+.file-drop {
+  border: 2px dashed #EF5A00;
+  border-radius: 10px;
+  width: 100%;
+  height: 200px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #EF5A00;
+  background-color: #fff;
+  transition: background-color 0.3s, color 0.3s;
+  text-align: center;
+  flex-direction: column;
+}
+
+.file-drop:hover {
+  background-color: #EF5A00;
+  color: #fff;
+}
+
+.file-drop input[type="file"] {
+  display: none;
+}
+
+.file-drop label {
+  cursor: pointer;
+}
+
+.file-name {
+  margin-top: 10px;
+}
+
+#popup-welcome .inner-popup {
+  margin: 25vh 25vw;
+  width: 50vw;
+  height: 50vh;
+}
+.inner-popup {
+    display: grid;
+    position: fixed;
+    top: 0;
+    border-radius: 10px;
+    background-color: white;
+    padding:10px;
+    box-shadow: 0px 5px 0px rgb(0,0,0,0.1);
+}
+
+.outer-popup {
+    width: 100vw;
+    height: 100vw;
+    filter: blur(4px);
+}
