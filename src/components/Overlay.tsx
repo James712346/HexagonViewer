@@ -8,7 +8,8 @@ export const Overlay: React.FC<OverlayComponentProps> = (
     { overlay, onClick },
 ) => {
     const { id, x, y, width, height } = overlay;
-
+    const isIOS = /Safari/.test(navigator.userAgent);
+    const scaleConversion = (isIOS) ? 0.875 : 1;
     return (
         <div
             key={id}
@@ -16,10 +17,10 @@ export const Overlay: React.FC<OverlayComponentProps> = (
             className="overlay"
             style={{
                 position: "absolute",
-                top: y,
-                left: x,
-                width: width,
-                height: height,
+                top: y * scaleConversion,
+                left: x * scaleConversion,
+                width: width * scaleConversion,
+                height: height * scaleConversion,
                 cursor: "pointer",
             }}
         >
