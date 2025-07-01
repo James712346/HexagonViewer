@@ -43,10 +43,11 @@ export interface ItemCardsProps {
     database: Database;
     area: string | null;
 }
-
 export interface ItemCardProps {
     database: Database;
     board: string;
+    tableLarger?: boolean;
+    children?: React.ReactNode;
 }
 export interface BoardArea {
   board: string;
