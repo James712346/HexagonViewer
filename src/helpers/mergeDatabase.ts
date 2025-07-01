@@ -1,17 +1,6 @@
 import { Database } from "sql.js";
 import { saveDatabase } from "./database.ts"; // Assuming your existing database functions are in database.ts
 
-/**
- * Merges a new database with the current database by:
- * 1. Keeping hexagon tables from the new database
- * 2. Dropping non-hexagon tables from the new database
- * 3. Copying non-hexagon tables from the current database to the new database
- * 
- * @param currentDb - The current database with existing non-hexagon tables
- * @param newDb - The new database with updated hexagon tables
- * @param setDatabase - Function to update the database state
- * @returns Promise<Database> - The merged database
- */
 export async function mergeDatabases(
     currentDb: Database,
     newDb: Database,
@@ -126,11 +115,6 @@ export async function mergeDatabases(
     }
 }
 
-/**
- * Helper function to get table information from a database
- * @param db - Database to analyze
- * @returns Object containing hexagon and non-hexagon table names
- */
 export function getTableInfo(db: Database): {
     hexagonTables: string[];
     nonHexagonTables: string[];
@@ -156,12 +140,7 @@ export function getTableInfo(db: Database): {
     };
 }
 
-/**
- * Utility function to preview what would happen during a merge without actually performing it
- * @param currentDb - Current database
- * @param newDb - New database to merge
- * @returns Preview information
- */
+
 export function previewMerge(currentDb: Database, newDb: Database): {
     currentInfo: ReturnType<typeof getTableInfo>;
     newInfo: ReturnType<typeof getTableInfo>;

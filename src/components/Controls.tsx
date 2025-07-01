@@ -102,7 +102,7 @@ export const Controls: React.FC<databaseProps> = ({database, setDatabase}) => {
                 title="Merge database - Upload a new database file to merge with current data"
                 disabled={!database}
             >
-                <i className="fa fa-code-fork"></i>
+                <i className="fa fa-code-fork" style={{ transform: 'rotate(180deg)' }}></i>
             </button>
             <button type="button" onClick={() => console.log("EDIT")}>
                 <i className="fa fa-pencil"></i>

@@ -156,7 +156,7 @@ export async function clearDatabaseStorage(setDatabase:((db: Database|null) => v
 // Download database (unchanged from your original)
 export function downloadDatabase(
     db: Database,
-    filename = "database.sqlite",
+    filename = "database.db",
 ): void {
     try {
         const binaryArray = db.export();
