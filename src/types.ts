@@ -53,3 +53,8 @@ export interface BoardArea {
   board: string;
   clickableArea: string;
 }
+
+export interface TaskStepsProps extends ItemCardProps {
+  taskId: string;
+  onClose: () => void;
+}
