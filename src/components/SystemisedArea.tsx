@@ -7,7 +7,7 @@ import {
     TaskStepsProps,
 } from "../types.ts";
 import { Gauge } from "@mui/x-charts/Gauge";
-import { DataGrid, GridCellParams, GridColDef } from "@mui/x-data-grid";
+import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { renderProgress } from "./progressColumn.tsx";
 export const SystemisedPanel: React.FC<Panel> = ({ back, children }) => {
     return (
@@ -265,9 +265,9 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = (
             field: "task_id",
             headerName: "Task ID",
             width: 150,
-            renderCell: (params: GridCellParams) => (
+            renderCell: ({value}) => (
                 <p
-                    onClick={() => setSelectedTaskId(params.value as string)}
+                    onClick={() => setSelectedTaskId(value as string)}
                     style={{
                         color: "#1976d2",
                         textDecoration: "underline",
@@ -276,7 +276,7 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = (
                         minWidth: "auto",
                     }}
                 >
-                    {params.value}
+                    {value}
                 </p>
             ),
         },
