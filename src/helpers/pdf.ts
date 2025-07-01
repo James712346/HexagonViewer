@@ -1,13 +1,7 @@
 import {
     getDocument,
-    GlobalWorkerOptions,
     PDFDocumentProxy,
-    version,
 } from "pdfjs-dist";
-
-// Ensure worker is configured
-GlobalWorkerOptions.workerSrc =
-    `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${version}/pdf.worker.min.mjs`;
 
 // Cache configuration
 const CACHE_DB_NAME = "pdf-image-cache";

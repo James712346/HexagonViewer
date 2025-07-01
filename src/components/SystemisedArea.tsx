@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
     BoardArea,
-    focusBoard,
     ItemCardProps,
     ItemCardsProps,
     Panel,
@@ -97,7 +96,7 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = (
             flex: 1,
             type: "dateTime",
             valueGetter: (value) => value && new Date(value),
-            valueFormatter: (value:DateConstructor) => value && value.toLocaleString("en-AU")
+            valueFormatter: (value:Date) => value && value.toLocaleString("en-AU")
         },
         {
             field: "system_asset_location",
