@@ -62,6 +62,7 @@ const TaskDetailView: React.FC<TaskDetailViewProps> = ({
     board,
     database,
     onTaskUpdate,
+    onClose,
 }) => {
     const [taskComments, setTaskComments] = useState<string>(selectedTask.comments || "");
     const [taskAccepted, setTaskAccepted] = useState<boolean | null>(selectedTask.accepted || null);
@@ -106,6 +107,7 @@ const TaskDetailView: React.FC<TaskDetailViewProps> = ({
     const handleClose = () => {
         setTaskAccepted(null);
         setTaskComments("");
+        onClose();
     };
 
     return (
@@ -612,6 +614,13 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = ({
             headerName: "Accepted",
             width: 80,
             type: "boolean",
+            renderCell: (params) => {
+    if (params.value === null) {
+      return '';
+    }
+    // Return undefined to use default boolean rendering (checkbox)
+    return undefined;
+            }
         },
         {
             field: "comments",
