@@ -7,6 +7,8 @@ import { styled } from '@mui/material/styles';
 
 interface ProgressBarProps {
   value: number;
+  outof: number;
+  completedSteps: number;
 }
 
 const Center = styled('div')({
@@ -46,12 +48,12 @@ const Bar = styled('div')({
 });
 
 const ProgressBar = React.memo(function ProgressBar(props: ProgressBarProps) {
-  const { value } = props;
+  const { value, outof, completedSteps } = props;
   const valueInPercent = value;
 
   return (
     <Element>
-      <Value>{`${valueInPercent.toLocaleString()} %`}</Value>
+      <Value>{`${completedSteps} / ${outof}`}</Value>
       <Bar
         className={clsx({
           low: valueInPercent < 30,
@@ -69,10 +71,10 @@ export function renderProgress(params: GridRenderCellParams<any, number, any>) {
   if (params.value == null) {
     return '';
   }
-
+  console.log(params);
   return (
     <Center>
-      <ProgressBar value={params.value} />
+      <ProgressBar value={params.value} outof={params.row.total_count} completedSteps = {params.row.completed_count} />
     </Center>
   );
 }

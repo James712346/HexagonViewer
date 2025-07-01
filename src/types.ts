@@ -56,5 +56,4 @@ export interface BoardArea {
 
 export interface TaskStepsProps extends ItemCardProps {
   taskId: string;
-  onClose: () => void;
 }

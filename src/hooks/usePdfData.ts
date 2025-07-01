@@ -28,6 +28,14 @@ export const usePdfData = (database: Database) => {
       );
     `;
     database.exec(createTableQuery);
+    createTableQuery = `
+      CREATE TABLE IF NOT EXISTS taskmarkup (
+          taskid TEXT PRIMARY KEY,
+          comments TEXT,
+          accepted BOOLEAN
+      );
+    `;
+    database.exec(createTableQuery);
     // Load PDF data
     database.each(
       `SELECT file FROM pdf;`,
