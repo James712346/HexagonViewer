@@ -393,6 +393,7 @@ export const SystemisedItems: React.FC<ItemCardsProps> = (
                             height: "0px",
                             left: "96%",
                             bottom: "31px",
+                            cursor: "pointer"
                         }}
                         onClick={() => setFocusBoard(null)}
                     />
@@ -416,6 +417,7 @@ export const SystemisedItems: React.FC<ItemCardsProps> = (
                                 height: "0px",
                                 left: "96%",
                                 bottom: "31px",
+                                cursor: "pointer"
                             }}
                             className="fa fa-xl fa-expand"
                             onClick={() => setFocusBoard(row.board)}
