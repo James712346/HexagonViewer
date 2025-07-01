@@ -61,31 +61,27 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = (
             field: "asset_id",
             headerName: "Asset ID",
             width: 120,
-            flex: 1,
         },
         {
             field: "task_id",
             headerName: "Task ID",
             width: 150,
-            flex: 1,
         },
         {
             field: "task_state",
             headerName: "Task State",
             width: 120,
-            flex: 1,
         },
         {
             field: "description",
             headerName: "Description",
             width: 300,
-            flex: 2,
+            flex: 2
         },
         {
             field: "completion_percentage",
             headerName: "Completion %",
             width: 130,
-            flex: 1,
             type: "number",
             renderCell: renderProgress,
         },
@@ -93,7 +89,6 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = (
             field: "lastStepCompleted",
             headerName: "Last Step Completed",
             width: 180,
-            flex: 1,
             type: "dateTime",
             valueGetter: (value) => value && new Date(value),
             valueFormatter: (value:Date) => value && value.toLocaleString("en-AU")
@@ -102,19 +97,16 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = (
             field: "system_asset_location",
             headerName: "From Location",
             width: 200,
-            flex: 1,
         },
         {
             field: "second_asset_location",
             headerName: "To Location",
             width: 200,
-            flex: 1,
         },
         {
             field: "responsible_company",
             headerName: "Responsible Company",
             width: 180,
-            flex: 1,
         },
     ];
     useEffect(() => {
@@ -293,6 +285,7 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = (
                         },
                     }}
                     pageSizeOptions={[5, 20, 50, 100]}
+
                     showToolbar
                     disableRowSelectionOnClick
                 />
