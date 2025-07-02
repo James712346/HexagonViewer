@@ -10,7 +10,25 @@ import { Gauge } from "@mui/x-charts/Gauge";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { renderProgress } from "./progressColumn.tsx";
 import { saveDatabase } from "../helpers/database.ts";
+import { Chip, Tooltip } from "@mui/material";
 
+const statusOptions = [
+    { value: "Created", color: "default", bgColor: "#f5f5f5" },
+    { value: "Started", color: "info", bgColor: "#e3f2fd" },
+    { value: "Submitted", color: "warning", bgColor: "#fff3e0" },
+    { value: "Closed", color: "success", bgColor: "#e8f5e8" },
+    { value: "Revoked", color: "error", bgColor: "#ffebee" },
+    { value: "Rejected", color: "error", bgColor: "#ffebee" },
+    { value: "Completed", color: "success", bgColor: "#e8f5e8" },
+    { value: "Cancelled", color: "default", bgColor: "#f5f5f5" },
+    { value: "null", color: "default", bgColor: "#f5f5f5" },
+];
+
+const stepOptions = [
+    { value: "Accept", color: "success", bgColor: "#e8f5e8" },
+    { value: "Reject", color: "error", bgColor: "#ffebee" },
+    { value: "N/A", color: "default", bgColor: "#f5f5f5" },
+];
 export const SystemisedPanel: React.FC<Panel> = ({ back, children }) => {
     return (
         <div className="systemisedPanel">
@@ -56,6 +74,69 @@ interface TaskDetailViewProps {
     onTaskUpdate: () => void; // Callback to refresh parent data
 }
 
+// Status chip renderer
+const StatusChip: React.FC<{ value: string }> = ({ value }) => {
+    const option = statusOptions.find((opt) => opt.value === value);
+    return (
+        <div style={{ display: "flex" }}>
+            <Chip
+                label={value}
+                color={(option?.color as
+                    | "default"
+                    | "primary"
+                    | "secondary"
+                    | "error"
+                    | "info"
+                    | "success"
+                    | "warning") || "default"}
+                size="small"
+                style={{
+                    margin: "auto",
+                }}
+                sx={{
+                    margin: "auto",
+                    fontWeight: "medium",
+                    "& .MuiChip-label": {
+                        px: 1.5,
+                    },
+                }}
+            />
+        </div>
+    );
+};
+
+const StepChip: React.FC<{ value: string }> = ({ value }) => {
+    const option = stepOptions.find((opt) => opt.value == value);
+    if (!option) {
+        return (<>{value}</>);
+    }
+    return (
+        <div style={{ display: "flex" }}>
+            <Chip
+                label={value}
+                color={(option?.color as
+                    | "default"
+                    | "primary"
+                    | "secondary"
+                    | "error"
+                    | "info"
+                    | "success"
+                    | "warning") || "default"}
+                size="small"
+                style={{
+                    margin: "auto",
+                }}
+                sx={{
+                    fontWeight: "medium",
+                    "& .MuiChip-label": {
+                        px: 1.5,
+                    },
+                }}
+            />
+        </div>
+    );
+};
+
 // New component for task detail view
 const TaskDetailView: React.FC<TaskDetailViewProps> = ({
     selectedTask,
@@ -64,21 +145,28 @@ const TaskDetailView: React.FC<TaskDetailViewProps> = ({
     onTaskUpdate,
     onClose,
 }) => {
-    const [taskComments, setTaskComments] = useState<string>(selectedTask.comments || "");
-    const [taskAccepted, setTaskAccepted] = useState<boolean | null>(selectedTask.accepted || null);
+    const [taskComments, setTaskComments] = useState<string>(
+        selectedTask.comments || "",
+    );
+    const [taskAccepted, setTaskAccepted] = useState<boolean | null>(
+        selectedTask.accepted || null,
+    );
 
     const handleTaskAcceptance = async (taskId: string, accepted: boolean) => {
         try {
             setTaskAccepted(accepted);
             console.log(`Task ${taskId} ${accepted ? "accepted" : "rejected"}`);
-            
-            database.exec(`INSERT INTO taskmarkup (taskid,comments,accepted)
+
+            database.exec(
+                `INSERT INTO taskmarkup (taskid,comments,accepted)
                               VALUES(?,NULL, ?)
                               ON CONFLICT(taskid) 
-                              DO UPDATE SET accepted=excluded.accepted;`, [taskId, accepted]);
-            
+                              DO UPDATE SET accepted=excluded.accepted;`,
+                [taskId, accepted],
+            );
+
             saveDatabase(database);
-            
+
             // Trigger parent data refresh
             onTaskUpdate();
         } catch (error) {
@@ -89,14 +177,17 @@ const TaskDetailView: React.FC<TaskDetailViewProps> = ({
     const handleCommentsSubmit = async (taskId: string, comments: string) => {
         try {
             console.log(`Comments for task ${taskId}:`, comments);
-            
-            database.exec(`INSERT INTO taskmarkup (taskid,comments,accepted)
+
+            database.exec(
+                `INSERT INTO taskmarkup (taskid,comments,accepted)
                               VALUES(?,?, NULL)
                               ON CONFLICT(taskid) 
-                              DO UPDATE SET comments=excluded.comments;`, [taskId, comments]);
-            
+                              DO UPDATE SET comments=excluded.comments;`,
+                [taskId, comments],
+            );
+
             saveDatabase(database);
-            
+
             // Trigger parent data refresh
             onTaskUpdate();
         } catch (error) {
@@ -123,22 +214,31 @@ const TaskDetailView: React.FC<TaskDetailViewProps> = ({
                     padding: "16px",
                 }}
             >
-                <div style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    alignItems: "center",
-                    marginBottom: "20px",
-                }}>
-                <h3
+                <div
                     style={{
-                        color: "#333",
+                        display: "flex",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        marginBottom: "20px",
                     }}
                 >
-                    Task Summary
-                </h3>
-                <button style={{ border: "solid 2px", borderRadius:'10px', padding: '5px' }} onClick={handleClose}>
-                    Back
-                </button>
+                    <h3
+                        style={{
+                            color: "#333",
+                        }}
+                    >
+                        Task Summary
+                    </h3>
+                    <button
+                        style={{
+                            border: "solid 2px",
+                            borderRadius: "10px",
+                            padding: "5px",
+                        }}
+                        onClick={handleClose}
+                    >
+                        Back
+                    </button>
                 </div>
                 <div
                     style={{
@@ -155,8 +255,7 @@ const TaskDetailView: React.FC<TaskDetailViewProps> = ({
                         <strong>Asset ID:</strong> {selectedTask.asset_id}
                     </div>
                     <div>
-                        <strong>Task State:</strong>{" "}
-                        {selectedTask.task_state}
+                        <strong>Task State:</strong> {selectedTask.task_state}
                     </div>
                     <div>
                         <strong>Completion:</strong>{" "}
@@ -175,8 +274,7 @@ const TaskDetailView: React.FC<TaskDetailViewProps> = ({
                         {selectedTask.responsible_company || "N/A"}
                     </div>
                     <div>
-                        <strong>Total Steps:</strong>{" "}
-                        {selectedTask.total_count}
+                        <strong>Total Steps:</strong> {selectedTask.total_count}
                     </div>
                 </div>
 
@@ -227,9 +325,7 @@ const TaskDetailView: React.FC<TaskDetailViewProps> = ({
                             backgroundColor: taskAccepted === false
                                 ? "#f44336"
                                 : "#f0f0f0",
-                            color: taskAccepted === false
-                                ? "white"
-                                : "#333",
+                            color: taskAccepted === false ? "white" : "#333",
                             border: "1px solid #ddd",
                             borderRadius: "4px",
                             cursor: "pointer",
@@ -322,7 +418,6 @@ export const TaskSteps: React.FC<TaskStepsProps> = ({
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const [taskStepsData, setTaskStepsData] = useState<TaskStepData[]>([]);
-
     // DataGrid columns for task steps
     const columns: GridColDef[] = [
         {
@@ -342,6 +437,7 @@ export const TaskSteps: React.FC<TaskStepsProps> = ({
             field: "step_answer",
             headerName: "Step Answer",
             width: 150,
+            renderCell: (params) => <StepChip value={params.value} />,
         },
         {
             field: "completed_date",
@@ -531,6 +627,9 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = ({
         total_count: false,
     });
 
+    const statusValueOptions = [
+        ...statusOptions.map((option) => option.value),
+    ];
     const columns: GridColDef[] = [
         {
             field: "asset_id",
@@ -561,6 +660,15 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = ({
             field: "task_state",
             headerName: "Task State",
             width: 120,
+            type: "singleSelect",
+            valueOptions: statusValueOptions,
+            valueGetter: (value) => {
+                if (value == null) {
+                    return "null";
+                }
+                return value;
+            },
+            renderCell: (params) => <StatusChip value={params.value} />,
         },
         {
             field: "description",
@@ -615,12 +723,12 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = ({
             width: 80,
             type: "boolean",
             renderCell: (params) => {
-    if (params.value === null) {
-      return '';
-    }
-    // Return undefined to use default boolean rendering (checkbox)
-    return undefined;
-            }
+                if (params.value === null) {
+                    return "";
+                }
+                // Return undefined to use default boolean rendering (checkbox)
+                return undefined;
+            },
         },
         {
             field: "comments",
@@ -631,7 +739,7 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = ({
 
     // Function to refresh data
     const refreshData = () => {
-        setRefreshTrigger(prev => prev + 1);
+        setRefreshTrigger((prev) => prev + 1);
     };
 
     useEffect(() => {
@@ -671,8 +779,6 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = ({
 
                 const result = database.exec(sql, [`%${board}%`]);
 
-                console.log("Task data result:", result);
-
                 let rows: TaskData[] = [];
 
                 if (result && result.length > 0 && result[0].values) {
@@ -699,7 +805,9 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = ({
 
                     // Group tasks by type (extracted from task_id pattern T-{type}-###)
                     tasks.forEach((task) => {
-                        const match = task.task_id.match(/T-([A-Z]{2}\d{3})-\d+/);
+                        const match = task.task_id.match(
+                            /T-([A-Z]{2}\d{3})-\d+/,
+                        );
                         if (match) {
                             const type = match[1];
                             if (!typeMap.has(type)) {
@@ -725,7 +833,8 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = ({
                             0,
                         );
                         const totalPercentage = data.tasks.reduce(
-                            (sum, task) => sum + (task.completion_percentage || 0),
+                            (sum, task) =>
+                                sum + (task.completion_percentage || 0),
                             0,
                         );
                         const averagePercentage = data.tasks.length > 0
@@ -734,7 +843,8 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = ({
 
                         gauges.push({
                             type,
-                            description: `${data.description} (Total Steps ${totalCount}) `,
+                            description:
+                                `${data.description} (Total Steps ${totalCount}) `,
                             value: Math.min(averagePercentage, 100),
                         });
                     });
@@ -806,10 +916,9 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = ({
     return (
         <div className="card">
             <h2>Board: {board}</h2>
-            <p>Room ID</p>
             {children}
             <div className="gauges">
-                {gaugeData.map((gauge) => (
+                {gaugeData.filter((guage) => guage.value > 0).map((gauge) => (
                     <div key={gauge.type}>
                         <Gauge
                             width={100}
@@ -820,10 +929,18 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = ({
                             innerRadius="80%"
                             outerRadius="100%"
                         />
-                        <h2 style={{ textAlign: "center" }}>
+                        <h3 style={{ textAlign: "center" }}>
                             {gauge.description}
-                        </h2>
+                        </h3>
                     </div>
+                ))}
+            </div>
+            <div>
+                <h2>No Completed Steps</h2>
+                {gaugeData.filter((guage) => guage.value <= 0).map((gauge) => (
+                    <Tooltip title={gauge.description}>
+                        <Chip style={{ margin: "0 4px" }} label={gauge.type} />
+                    </Tooltip>
                 ))}
             </div>
             <h2>Checksheets</h2>
@@ -846,7 +963,21 @@ export const SystemisedItemCard: React.FC<ItemCardProps> = ({
                         },
                     }}
                     onColumnVisibilityModelChange={(newModel) =>
-                        setColumnVisibilityModel(newModel as { asset_id: boolean; task_id: boolean; task_state: boolean; description: boolean; system_asset_location: boolean; second_asset_location: boolean; responsible_company: boolean; lastStepCompleted: boolean; completion_percentage: boolean; completed_count: boolean; total_count: boolean; })}
+                        setColumnVisibilityModel(
+                            newModel as {
+                                asset_id: boolean;
+                                task_id: boolean;
+                                task_state: boolean;
+                                description: boolean;
+                                system_asset_location: boolean;
+                                second_asset_location: boolean;
+                                responsible_company: boolean;
+                                lastStepCompleted: boolean;
+                                completion_percentage: boolean;
+                                completed_count: boolean;
+                                total_count: boolean;
+                            },
+                        )}
                     pageSizeOptions={[5, 20, 50, 100]}
                     showToolbar
                     disableRowSelectionOnClick
@@ -873,8 +1004,6 @@ export const SystemisedItems: React.FC<ItemCardsProps> = ({
 
                 const sql = `SELECT * FROM boardsAreas WHERE clickableArea = ?`;
                 const result = database.exec(sql, [area]);
-
-                console.log("Query result:", result);
 
                 let rows: BoardArea[] = [];
 
@@ -931,7 +1060,6 @@ export const SystemisedItems: React.FC<ItemCardsProps> = ({
     if (focusBoard != null) {
         return (
             <div className="information">
-                <h1>Title: ID: {area}</h1>
                 <SystemisedItemCard
                     board={focusBoard}
                     database={database}
