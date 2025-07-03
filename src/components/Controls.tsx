@@ -22,6 +22,8 @@ import {
     Merge as MergeIcon,
     Refresh as RefreshIcon,
     Search as SearchIcon,
+    Sort as SortIcon,
+    SortByAlpha as SortByAlphaIcon,
     Tag as RegexIcon,
     ZoomIn as ZoomInIcon,
     ZoomOut as ZoomOutIcon,
@@ -145,12 +147,20 @@ const highlightText = (
     }
 };
 
+// Sort types
+type SortType =
+    | "relevance"
+    | "date-asc"
+    | "date-desc"
+    | "alpha-asc"
+    | "alpha-desc";
+
 interface SearchItem {
     id: string;
     rooms: string;
     label: string;
     certificate_tag: string;
-    scheduled_date: string;
+    forecasted_date: string;
     boards: string;
 }
 
@@ -171,6 +181,7 @@ export const Controls: React.FC<
     const [useRegex, setUseRegex] = useState(false);
     const [searchItems, setSearchItems] = useState < SearchItem[] > ([]);
     const [showResults, setShowResults] = useState(false);
+    const [sortType, setSortType] = useState < SortType > ("relevance");
 
     // Fetch search data from database
     useEffect(() => {
@@ -184,7 +195,7 @@ export const Controls: React.FC<
             ca.room AS rooms,
             ca.label AS label,
             GROUP_CONCAT(DISTINCT hcd.certificate_tag) as certificate_tag,
-            GROUP_CONCAT(DISTINCT hcd.scheduled_date) as scheduled_date,
+            GROUP_CONCAT(DISTINCT hcd.forecasted_date) as scheduled_date,
             GROUP_CONCAT(DISTINCT ba.board) AS boards
           FROM clickableAreas ca
             LEFT OUTER JOIN boardsAreas ba ON ca.id = ba.clickableArea
@@ -192,7 +203,7 @@ export const Controls: React.FC<
             LEFT OUTER JOIN hexagon_dump_certvtask_dump ctd ON ctd.task_id = td.task_id
             LEFT OUTER JOIN hexagon_dump_cert_dump hcd ON hcd.certificate_tag = ctd.cert_id
           GROUP BY ca.id, ca.room, ca.label
-          ORDER BY hcd.scheduled_date;
+          ORDER BY hcd.forecasted_date;
         `;
 
                 const result = database.exec(query);
@@ -204,7 +215,7 @@ export const Controls: React.FC<
                         rooms: row[1] || "",
                         label: row[2] || "",
                         certificate_tag: row[3] || "",
-                        scheduled_date: row[4] || "",
+                        forecasted_date: row[4] || "",
                         boards: row[5] || "",
                     }));
                     setSearchItems(items);
@@ -217,28 +228,118 @@ export const Controls: React.FC<
         fetchSearchData();
     }, [database]);
 
+    // Helper function to get the earliest scheduled date for sorting
+    const getEarliestDate = (forecastedDate: string): Date => {
+        if (!forecastedDate) return new Date("9999-12-31"); // Far future for items without dates
+
+        const dates = forecastedDate.split(",").map((date) => {
+            const trimmed = date.trim();
+            return trimmed ? new Date(trimmed) : new Date("9999-12-31");
+        });
+
+        return new Date(Math.min(...dates.map((d) => d.getTime())));
+    };
+
     // Filter and sort search results
     const filteredItems = useMemo(() => {
-        if (!searchQuery) return searchItems;
+        let results = searchItems;
 
-        return searchItems
-            .map((item) => {
-                const searchableText =
-                    `${item.rooms} ${item.label} ${item.certificate_tag} ${item.scheduled_date} ${item.boards}`;
-                const searchResult = enhancedSearch(
-                    searchQuery,
-                    searchableText,
-                    useRegex,
-                );
+        // Apply search filtering
+        if (searchQuery) {
+            results = searchItems
+                .map((item) => {
+                    const searchableText =
+                        `${item.rooms} ${item.label} ${item.certificate_tag} ${item.forecasted_date} ${item.boards}`;
+                    const searchResult = enhancedSearch(
+                        searchQuery,
+                        searchableText,
+                        useRegex,
+                    );
 
+                    return {
+                        ...item,
+                        ...searchResult,
+                    };
+                })
+                .filter((item) => item.match);
+        }
+
+        // Apply sorting
+        const sortedResults = [...results].sort((a, b) => {
+            switch (sortType) {
+                case "relevance":
+                    if (searchQuery) {
+                        return (b as any).score - (a as any).score;
+                    }
+                    return 0;
+
+                case "date-asc":
+                    return getEarliestDate(a.forecasted_date).getTime() -
+                        getEarliestDate(b.forecasted_date).getTime();
+
+                case "date-desc":
+                    return getEarliestDate(b.forecasted_date).getTime() -
+                        getEarliestDate(a.forecasted_date).getTime();
+
+                case "alpha-asc":
+                    return a.label.localeCompare(b.label);
+
+                case "alpha-desc":
+                    return b.label.localeCompare(a.label);
+
+                default:
+                    return 0;
+            }
+        });
+
+        return sortedResults;
+    }, [searchItems, searchQuery, useRegex, sortType]);
+
+    // Handle sort type cycling
+    const handleSortClick = () => {
+        const sortOrder: SortType[] = [
+            "relevance",
+            "date-asc",
+            "date-desc",
+            "alpha-asc",
+            "alpha-desc",
+        ];
+        const currentIndex = sortOrder.indexOf(sortType);
+        const nextIndex = (currentIndex + 1) % sortOrder.length;
+        setSortType(sortOrder[nextIndex]);
+    };
+
+    // Get sort icon and tooltip based on current sort type
+    const getSortDisplay = () => {
+        switch (sortType) {
+            case "relevance":
+                return { icon: <SortIcon />, tooltip: "Sort by Relevance" };
+            case "date-asc":
                 return {
-                    ...item,
-                    ...searchResult,
+                    icon: <SortIcon sx={{ transform: "rotate(0deg)" }} />,
+                    tooltip: "Sort by Date (Earliest First)",
                 };
-            })
-            .filter((item) => item.match)
-            .sort((a, b) => b.score - a.score);
-    }, [searchItems, searchQuery, useRegex]);
+            case "date-desc":
+                return {
+                    icon: <SortIcon sx={{ transform: "rotate(180deg)" }} />,
+                    tooltip: "Sort by Date (Latest First)",
+                };
+            case "alpha-asc":
+                return {
+                    icon: <SortByAlphaIcon />,
+                    tooltip: "Sort Alphabetically (A-Z)",
+                };
+            case "alpha-desc":
+                return {
+                    icon: (
+                        <SortByAlphaIcon sx={{ transform: "rotate(180deg)" }} />
+                    ),
+                    tooltip: "Sort Alphabetically (Z-A)",
+                };
+            default:
+                return { icon: <SortIcon />, tooltip: "Sort" };
+        }
+    };
 
     // Handle merge file operations
     const handleMergeFile = async () => {
@@ -381,6 +482,7 @@ export const Controls: React.FC<
         },
     ];
 
+    const sortDisplay = getSortDisplay();
     return (
         <>
             {/* Search Panel - Top Left */}
@@ -508,6 +610,31 @@ export const Controls: React.FC<
                                             endAdornment: (
                                                 <InputAdornment position="end">
                                                     <Tooltip
+                                                        title={sortDisplay
+                                                            .tooltip}
+                                                        arrow
+                                                    >
+                                                        <IconButton
+                                                            size="small"
+                                                            onClick={handleSortClick}
+                                                            sx={{
+                                                                color:
+                                                                    sortType ===
+                                                                        "relevance"
+                                                                        ? "text.secondary"
+                                                                        : "primary.main",
+                                                                "&:hover": {
+                                                                    backgroundColor:
+                                                                        "primary.light",
+                                                                    color:
+                                                                        "white",
+                                                                },
+                                                            }}
+                                                        >
+                                                            {sortDisplay.icon}
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                    <Tooltip
                                                         title={useRegex
                                                             ? "Regex Mode"
                                                             : "Text Mode"}
@@ -584,10 +711,10 @@ export const Controls: React.FC<
                                                                             tag.trim(),
                                                                     )
                                                                 : [];
-                                                        const scheduledDates =
-                                                            item.scheduled_date
+                                                        const forecastedDates =
+                                                            item.forecasted_date
                                                                 ? item
-                                                                    .scheduled_date
+                                                                    .forecasted_date
                                                                     .split(",")
                                                                     .map(
                                                                         (
@@ -655,7 +782,14 @@ export const Controls: React.FC<
                                                                                 useRegex,
                                                                             )}
                                                                         </Typography>
-                                                                        <div style={{width:"100%", height: "0px"}} />
+                                                                        <div
+                                                                            style={{
+                                                                                width:
+                                                                                    "100%",
+                                                                                height:
+                                                                                    "0px",
+                                                                            }}
+                                                                        />
                                                                         {/* Show each certificate with its corresponding scheduled date */}
                                                                         {certTags
                                                                             .length >
@@ -679,13 +813,13 @@ export const Controls: React.FC<
                                                                                                 certTag,
                                                                                                 certIndex,
                                                                                             ) => {
-                                                                                                const scheduledDate =
-                                                                                                    scheduledDates[
+                                                                                                const forecastedDate =
+                                                                                                    forecastedDates[
                                                                                                     certIndex
                                                                                                     ];
                                                                                                 const dateColor =
                                                                                                     getDateColor(
-                                                                                                        scheduledDate,
+                                                                                                        forecastedDate,
                                                                                                     );
 
                                                                                                 return (
@@ -729,11 +863,11 @@ export const Controls: React.FC<
                                                                                                                 useRegex,
                                                                                                             )}
                                                                                                         </Typography>
-                                                                                                        {scheduledDate &&
+                                                                                                        {forecastedDate &&
                                                                                                             (
                                                                                                                 <Chip
                                                                                                                     label={highlightText(
-                                                                                                                        scheduledDate,
+                                                                                                                        forecastedDate,
                                                                                                                         searchQuery,
                                                                                                                         useRegex,
                                                                                                                     )}
@@ -897,7 +1031,7 @@ export const Controls: React.FC<
                                                         fontSize: "0.875rem",
                                                         fontWeight: 500,
                                                         textWrap: "nowrap",
-                                                        overflow: "hidden"
+                                                        overflow: "hidden",
                                                     }}
                                                 >
                                                     {button.label}
@@ -911,32 +1045,33 @@ export const Controls: React.FC<
                                                 placement="right"
                                             >
                                                 <Box
-                                                sx={{
-                                                    display: "flex",
-                                                    alignItems: "left",
-                                                    gap: 1,
-                                                    py: 0.5,
-                                                    px: 1,
-                                                    borderRadius: 2,
-                                                    cursor: button.disabled
-                                                        ? "default"
-                                                        : "pointer",
-                                                    transition:
-                                                        "background-color 0.2s ease",
-                                                    "&:hover": {
-                                                        backgroundColor:
-                                                            button.disabled
-                                                                ? "transparent"
-                                                                : "primary.light",
-                                                        color: button.disabled
-                                                            ? "inherit"
-                                                            : "white",
-                                                    },
-                                                }}
-                                                onClick={button.disabled
-                                                    ? undefined
-                                                    : button.onClick}
-                                            >
+                                                    sx={{
+                                                        display: "flex",
+                                                        alignItems: "left",
+                                                        gap: 1,
+                                                        py: 0.5,
+                                                        px: 1,
+                                                        borderRadius: 2,
+                                                        cursor: button.disabled
+                                                            ? "default"
+                                                            : "pointer",
+                                                        transition:
+                                                            "background-color 0.2s ease",
+                                                        "&:hover": {
+                                                            backgroundColor:
+                                                                button.disabled
+                                                                    ? "transparent"
+                                                                    : "primary.light",
+                                                            color:
+                                                                button.disabled
+                                                                    ? "inherit"
+                                                                    : "white",
+                                                        },
+                                                    }}
+                                                    onClick={button.disabled
+                                                        ? undefined
+                                                        : button.onClick}
+                                                >
                                                     <IconButton
                                                         onClick={button.onClick}
                                                         disabled={button
@@ -973,3 +1108,4 @@ export const Controls: React.FC<
         </>
     );
 };
+
