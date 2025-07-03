@@ -4,6 +4,7 @@ import {
   GridRenderCellParams,
 } from '@mui/x-data-grid';
 import { styled } from '@mui/material/styles';
+import { Tooltip } from '@mui/material';
 
 interface ProgressBarProps {
   value: number;
@@ -52,6 +53,7 @@ const ProgressBar = React.memo(function ProgressBar(props: ProgressBarProps) {
   const valueInPercent = value;
 
   return (
+      <Tooltip title={`${valueInPercent.toFixed(2)}%`}>
     <Element>
       <Value>{`${completedSteps} / ${outof}`}</Value>
       <Bar
@@ -63,6 +65,7 @@ const ProgressBar = React.memo(function ProgressBar(props: ProgressBarProps) {
         style={{ maxWidth: `${valueInPercent}%` }}
       />
     </Element>
+    </Tooltip>
   );
 });
 

@@ -13,6 +13,7 @@ export const Overlay: React.FC<OverlayComponentProps> = (
         <Tooltip title={`${room} - ${label}`}>
             <div
                 key={id}
+                id={id}
                 onClick={onClick}
                 className="overlay"
                 style={{

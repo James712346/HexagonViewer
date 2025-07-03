@@ -17,7 +17,7 @@ h2 {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    z-index: 5;
+    z-index: 1301;
 }
 
 .controls button {
@@ -67,7 +67,7 @@ h2 {
     display: flex;
     top: 0;
     left: 0;
-    z-index: 6;
+    z-index: 1301;
 }
 
 .systemisedPanel .panel-back {
