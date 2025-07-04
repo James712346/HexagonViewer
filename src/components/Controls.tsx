@@ -492,7 +492,7 @@ export const Controls: React.FC<
                     position: "fixed",
                     top: 20,
                     left: 20,
-                    zIndex: 1300,
+                    zIndex: 6,
                     pointerEvents: "none",
                 }}
             >
@@ -951,7 +951,7 @@ export const Controls: React.FC<
                     position: "fixed",
                     bottom: 20,
                     left: 20,
-                    zIndex: 1300,
+                    zIndex: 6,
                     pointerEvents: "none",
                 }}
             >

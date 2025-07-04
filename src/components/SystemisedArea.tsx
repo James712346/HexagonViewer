@@ -167,7 +167,6 @@ const TaskDetailView: React.FC<TaskDetailViewProps> = ({
 
             saveDatabase(database);
 
-            // Trigger parent data refresh
             onTaskUpdate();
         } catch (error) {
             console.error("Error updating task acceptance:", error);

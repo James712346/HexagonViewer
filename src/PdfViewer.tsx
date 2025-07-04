@@ -99,7 +99,7 @@ export const PdfViewer: React.FC<PdfViewerProps> = ({
         onWheel={handleWheel}
         limitToBounds={false}
         minScale={0.71}
-        maxScale={50}
+        maxScale={10}
       >
         {() => (
           <>

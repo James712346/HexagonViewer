@@ -67,7 +67,7 @@ h2 {
     display: flex;
     top: 0;
     left: 0;
-    z-index: 1301;
+    z-index: 6;
 }
 
 .systemisedPanel .panel-back {
